@@ -1,0 +1,6 @@
+numpy == 2.4.6
+pandas == 3.0.3
+random
+json
+plotly == 6.7.0
+flask == 3.1.3
