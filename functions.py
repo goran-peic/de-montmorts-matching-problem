@@ -19,8 +19,21 @@ def simulate_outcomes(deck_size: int, sample_size: int) -> list[float]:
     Returns:
         A list of win probabilities, one per deck size (index 0 = deck size 1).
     """
-    outcomes = []
+    return list(p for _, p in simulate_outcomes_stream(deck_size, sample_size))
 
+def simulate_outcomes_stream(deck_size: int, sample_size: int):
+    """
+    Generator version of simulate_outcomes.
+    Yields (n, probability) tuples one at a time as each deck size is computed,
+    allowing callers to stream progress to the client.
+
+    Args:
+        deck_size:   Maximum deck size to simulate up to.
+        sample_size: Number of games simulated per deck size.
+
+    Yields:
+        Tuples of (n: int, probability: float) for n in 1..deck_size.
+    """
     for n in range(1, deck_size + 1):
         wins = sum(
             any(a == b for a, b in zip(
@@ -29,9 +42,7 @@ def simulate_outcomes(deck_size: int, sample_size: int) -> list[float]:
             ))
             for _ in range(sample_size)
         )
-        outcomes.append(wins / sample_size)
-
-    return outcomes
+        yield n, wins / sample_size
 
 def build_figure(outcomes: list[float], deck_size: int) -> go.Figure:
     """Build and return the Plotly figure for the simulation results."""
