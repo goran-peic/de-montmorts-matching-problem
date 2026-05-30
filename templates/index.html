@@ -1,34 +1,665 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>De Montmort's Matching Problem</title>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <style>
-            body {
-                background-color: #1a1a2e;
-                color: #e0e0e0;
-                font-family: Arial, sans-serif;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                margin: 0;
-                padding: 20px;
-                box-sizing: border-box;
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Montmort's Matching Problem</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0e0e1a;
+            --bg-card:   #13132b;
+            --border:    #1e2050;
+            --cyan:      #00d2ff;
+            --cyan-dim:  rgba(0, 210, 255, 0.08);
+            --red:       #e03030;
+            --red-hover: #ff4444;
+            --text:      #d4d4e8;
+            --text-dim:  #7a7a9a;
+            --mono:      'IBM Plex Mono', monospace;
+            --serif:     'Libre Baskerville', Georgia, serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,210,255,0.07) 0%, transparent 70%),
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
+            color: var(--text);
+            font-family: var(--serif);
+            min-height: 100vh;
+            padding: 100px 20px 80px; /* top clearance for sticky nav */
+        }
+
+        /* ── Sticky Nav Bar ── */
+        #site-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 22, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            height: 52px;
+            padding: 0 12px;
+            gap: 4px;
+        }
+        #site-nav::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.25), transparent);
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 14px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.18s, border-color 0.18s;
+            white-space: nowrap;
+        }
+        .nav-btn:hover {
+            color: var(--cyan);
+            border-bottom-color: rgba(0,210,255,0.4);
+        }
+        .nav-btn.active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+        }
+        .nav-btn .nav-index {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            letter-spacing: 0.05em;
+        }
+        /* Locked state for §05 before plot is ready */
+        .nav-btn.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        @media (max-width: 640px) {
+            .nav-btn { padding: 0 8px; font-size: 0.6rem; gap: 4px; }
+            .nav-btn .nav-label { display: none; }
+        }
+
+        .page-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* ── Page Title ── */
+        .page-title {
+            text-align: center;
+            padding-bottom: 8px;
+        }
+        .page-title h1 {
+            font-family: var(--mono);
+            font-size: clamp(1.3rem, 4vw, 2rem);
+            font-weight: 600;
+            color: var(--cyan);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .page-title .subtitle {
+            margin-top: 6px;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .title-rule {
+            margin: 16px auto 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 32px 36px;
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 14px;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .card h2 {
+            font-family: var(--mono);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
+        .card p {
+            font-size: 0.97rem;
+            line-height: 1.8;
+            color: var(--text);
+            text-align: justify;
+        }
+        .card p + p { margin-top: 12px; }
+
+        /* ── Sections 3 & 4 merged: §04 floated right inside §03's card ── */
+        #sec-03 {
+            overflow: hidden; /* contain the float */
+        }
+        #sec-04 {
+            float: right;
+            width: calc(50% - 14px);
+            margin: 0 0 20px 28px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px 24px 20px;
+        }
+        @media (max-width: 640px) {
+            #sec-04 {
+                float: none;
+                width: 100%;
+                margin: 0 0 24px 0;
             }
-            h1 { color: #00d2ff; text-align: center; }
-            #plot { width: 100%; max-width: 900px; height: 500px; }
-        </style>
-    </head>
-    <body>
-        <h1>De Montmort's Matching Problem</h1>
-        <div id="plot"></div>
-        <script>
-            var plotData = {{ plot_json | safe }};
-            Plotly.newPlot('plot', plotData.data, plotData.layout);
-        </script>
-    </body>
-    </html>
+            .card { padding: 24px 20px; }
+        }
+
+        /* ── Math / Equations ── */
+        .math-block {
+            background: rgba(0,0,0,0.35);
+            border-left: 3px solid var(--cyan);
+            border-radius: 0 4px 4px 0;
+            padding: 14px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+            font-size: 1rem;
+            color: #c8e8ff;
+        }
+        .math-label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ── Input form ── */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .input-row label {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+        .input-row input[type="number"] {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--cyan);
+            font-family: var(--mono);
+            font-size: 1.05rem;
+            padding: 10px 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            -moz-appearance: textfield;
+        }
+        .input-row input[type="number"]::-webkit-inner-spin-button,
+        .input-row input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        .input-row input[type="number"]:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 2px rgba(0,210,255,0.1);
+        }
+
+        .run-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--red);
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+            box-shadow: 0 4px 24px rgba(224,48,48,0.25);
+        }
+        .run-btn:hover {
+            background: var(--red-hover);
+            box-shadow: 0 4px 32px rgba(255,68,68,0.45);
+        }
+        .run-btn:active { transform: scale(0.98); }
+        .run-btn:disabled {
+            background: #5a2020;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* ── Plot section ── */
+        #plot-section {
+            display: {% if plot_json %}block{% else %}none{% endif %};
+        }
+        #plot { width: 100%; height: 500px; }
+
+        /* ── Loading overlay ── */
+        #loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 24px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--cyan);
+            letter-spacing: 0.1em;
+        }
+        .loading-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0,210,255,0.2);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Determinate progress bar ── */
+        .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 360px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(0,210,255,0.12);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(0,210,255,0.6), var(--cyan));
+            border-radius: 2px;
+            transition: width 0.15s ease-out;
+        }
+        .progress-pct {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--cyan);
+            letter-spacing: 0.05em;
+            min-width: 3.5ch;
+            text-align: right;
+        }
+
+        /* ── Validation error ── */
+        .field-error {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--red-hover);
+            margin-top: 2px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Sticky Navigation ── -->
+<nav id="site-nav">
+    <a class="nav-btn active" href="#sec-01">
+        <span class="nav-index">§01</span><span class="nav-label">The Problem</span>
+    </a>
+    <a class="nav-btn" href="#sec-02">
+        <span class="nav-index">§02</span><span class="nav-label">Analytic Solution</span>
+    </a>
+    <a class="nav-btn" href="#sec-03">
+        <span class="nav-index">§03</span><span class="nav-label">Simulation Approach</span>
+    </a>
+    <a class="nav-btn" href="#sec-04">
+        <span class="nav-index">§04</span><span class="nav-label">Run Simulation</span>
+    </a>
+    <a class="nav-btn locked" id="nav-results" href="#sec-05">
+        <span class="nav-index">§05</span><span class="nav-label">Results</span>
+    </a>
+</nav>
+
+<div class="page-wrapper">
+
+    <!-- ── Page Title ── -->
+    <div class="page-title" id="sec-top">        <h1>De Montmort's Matching Problem</h1>
+        <p class="subtitle">Hwang &amp; Blitzstein · Introduction to Probability · Example 1.6.4</p>
+        <div class="title-rule"></div>
+    </div>
+
+    <!-- ── Section 1: Problem Description ── -->
+    <div class="card" id="sec-01">
+        <p class="section-label">§ 01 — The Problem</p>
+        <h2>What is De Montmort's Matching Problem?</h2>
+        <p>
+            Proposed by the French mathematician <strong style="color:#c8e8ff">Pierre Rémond de Montmort</strong> in 1708,
+            the matching problem is one of the earliest and most elegant results in classical probability theory.
+        </p>
+        <p>
+            Imagine a shuffled deck of <em>n</em> cards numbered 1 through <em>n</em>. A second deck, also numbered 1 through <em>n</em>,
+            is laid out in order. Cards from the shuffled deck are turned over one by one alongside the ordered deck.
+            A <strong style="color:var(--cyan)">match</strong> occurs whenever the shuffled card and the ordered card share the same number
+            at the same position. The central question is:
+        </p>
+        <p style="text-align:center; font-style:italic; color:#c8e8ff; margin: 20px 0; font-size:1.05rem;">
+            "What is the probability that at least one match occurs?"
+        </p>
+        <p>
+            Equivalently, we ask for the probability that a uniformly random permutation of <em>n</em> elements has
+            <em>at least one fixed point</em> — a position <em>i</em> where the permutation maps <em>i</em> to itself.
+            Despite the intuitive complexity of the question, the answer converges rapidly to a beautifully simple limit
+            as <em>n</em> grows.
+        </p>
+    </div>
+
+    <!-- ── Section 2: Analytic Solution ── -->
+    <div class="card" id="sec-02">
+        <p class="section-label">§ 02 — The Analytic Solution</p>
+        <h2>Inclusion–Exclusion and the Limit</h2>
+        <p>
+            Let <em>A<sub>i</sub></em> be the event that position <em>i</em> is a match. By the
+            <strong style="color:var(--cyan)">inclusion–exclusion principle</strong>, the probability of the union
+            \( P(A_1 \cup A_2 \cup \cdots \cup A_n) \) is:
+        </p>
+
+        <div class="math-block">
+            <div class="math-label">Inclusion–Exclusion Expansion</div>
+            \[
+              P\!\left(\bigcup_{i=1}^{n} A_i\right)
+              \;=\; \sum_{k=1}^{n} (-1)^{k+1} \binom{n}{k} \frac{(n-k)!}{n!}
+              \;=\; \sum_{k=1}^{n} \frac{(-1)^{k+1}}{k!}
+            \]
+        </div>
+
+        <p>
+            Each term \( P(A_{i_1} \cap \cdots \cap A_{i_k}) = (n-k)!/n! \) counts the fraction of permutations
+            that fix at least those <em>k</em> specified positions. There are \(\binom{n}{k}\) such intersections,
+            each contributing equally.
+        </p>
+
+        <div class="math-block">
+            <div class="math-label">Closed Form</div>
+            \[
+              P(\text{at least one match}) \;=\; 1 - \sum_{k=0}^{n} \frac{(-1)^{k}}{k!}
+            \]
+        </div>
+
+        <p>
+            Recognising the partial sum of the Taylor expansion \( e^{-1} = \sum_{k=0}^{\infty} (-1)^k / k! \),
+            the probability that <em>no</em> match occurs converges to \( e^{-1} \approx 0.3679 \) as
+            \( n \to \infty \). Consequently, the probability of <strong style="color:var(--cyan)">at least one match</strong>
+            converges to:
+        </p>
+
+        <div class="math-block">
+            <div class="math-label">Limiting Probability</div>
+            \[
+              \lim_{n \to \infty} P(\text{at least one match}) \;=\; 1 - e^{-1} \;\approx\; 0.6321
+            \]
+        </div>
+
+        <p>
+            Remarkably, this limit is approached very quickly — already for \(n \geq 5\) the probability
+            stabilises to four decimal places. The result is surprising: no matter how large the deck,
+            there is always roughly a 63.2% chance that some card lands in its "correct" position.
+        </p>
+    </div>
+
+    <!-- ── Sections 3 & 4: §04 floated right inside §03's card ── -->
+    <div class="card" id="sec-03">
+
+        <!-- §04 floated right so §03 text wraps around it -->
+        <div id="sec-04">
+            <p class="section-label">§ 04 — Run the Simulation</p>
+            <h2>Configure Parameters</h2>
+
+            <div class="input-group">
+                <div class="input-row">
+                    <label for="deck_size">Deck Size <span style="color:var(--text-dim)">(max n)</span></label>
+                    <input type="number" id="deck_size" name="deck_size"
+                           value="52" min="2" max="500" step="1">
+                    <span class="field-error" id="deck_size_error">Enter an integer between 2 and 500.</span>
+                </div>
+                <div class="input-row">
+                    <label for="sample_size">Number of Simulations</label>
+                    <input type="number" id="sample_size" name="sample_size"
+                           value="10000" min="100" max="200000" step="100">
+                    <span class="field-error" id="sample_size_error">Enter an integer between 100 and 200,000.</span>
+                </div>
+            </div>
+
+            <button class="run-btn" id="run-btn" onclick="runSimulation()">
+                Run Simulation
+            </button>
+        </div>
+
+        <p class="section-label">§ 03 — Simulation Approach</p>
+        <h2>Estimating via Monte Carlo</h2>
+        <p>
+            While the analytic solution elegantly closes the problem, a
+            <strong style="color:var(--cyan)">Monte Carlo simulation</strong> provides complementary
+            intuition: it lets us <em>watch</em> the probability converge rather than derive it symbolically.
+        </p>
+        <p>
+            For each deck size <em>n</em> from 1 to the chosen maximum, the simulation independently
+            generates a large number of random permutations and records whether any position is a fixed point.
+            The estimated probability is simply the fraction of trials in which at least one match occurred:
+        </p>
+        <p style="text-align:center; font-style:italic; color:#c8e8ff; margin: 18px 0;">
+            \(\hat{p}_n = \text{wins} \;/\; \text{sample size}\)
+        </p>
+        <p>
+            With a sufficiently large sample, \(\hat{p}_n\) tracks the analytic curve closely and the
+            plateau near \(1 - e^{-1}\) becomes clearly visible. Increasing the number of simulations
+            reduces variance and sharpens the estimate.
+        </p>
+
+    </div><!-- end merged §03/§04 card -->
+
+    <!-- ── Loading indicator ── -->
+    <div id="loading">
+        <div class="loading-row">
+            <div class="spinner"></div>
+            RUNNING SIMULATION…
+        </div>
+        <div class="progress-wrap">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-pct" id="progress-pct">0%</span>
+        </div>
+    </div>
+
+    <!-- ── Plot ── -->
+    <div id="plot-section" class="card" style="padding: 24px 16px; display: none; flex-direction: column; align-items: center;">
+        <p class="section-label" style="width: 100%; text-align: center;" id="sec-05">§ 05 — Results</p>
+        <div id="plot" style="width: 100%; max-width: 860px;"></div>
+    </div>
+
+</div><!-- end .page-wrapper -->
+
+<script>
+    // ── Nav: scroll-spy ──────────────────────────────────────────────
+    const NAV_HEIGHT = 52;
+    const navLinks   = document.querySelectorAll('.nav-btn');
+    // sections[i] → which nav button index should be active when that section is in view
+    const sections = [
+        { el: document.getElementById('sec-01'),      navIdx: 0 },
+        { el: document.getElementById('sec-02'),      navIdx: 1 },
+        { el: document.getElementById('sec-03'),      navIdx: 2 }, // merged card; §04 nav btn also lives here
+        { el: document.getElementById('plot-section'), navIdx: 4 },
+    ];
+
+    function updateActiveNav() {
+        const scrollY = window.scrollY + NAV_HEIGHT + 16;
+        let currentNavIdx = 0;
+        sections.forEach(({ el, navIdx }) => {
+            if (el && el.style.display !== 'none' && el.offsetTop <= scrollY) {
+                currentNavIdx = navIdx;
+            }
+        });
+        navLinks.forEach((btn, i) => {
+            btn.classList.toggle('active', i === currentNavIdx);
+        });
+    }
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+    // Offset anchor scrolling to clear the fixed nav
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', e => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            e.preventDefault();
+            const top = target.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT - 12;
+            window.scrollTo({ top, behavior: 'smooth' });
+        });
+    });
+
+    // ── Unlock §05 nav button and reveal plot section ────────────────
+    function revealResults() {
+        const plotSection  = document.getElementById('plot-section');
+        const navResults   = document.getElementById('nav-results');
+        plotSection.style.display = 'flex';
+        navResults.classList.remove('locked');
+    }
+
+    // ── Simulation form ──────────────────────────────────────────────
+    function runSimulation() {
+        const deckInput    = document.getElementById('deck_size');
+        const sampleInput  = document.getElementById('sample_size');
+        const deckErr      = document.getElementById('deck_size_error');
+        const sampleErr    = document.getElementById('sample_size_error');
+        const btn          = document.getElementById('run-btn');
+        const loading      = document.getElementById('loading');
+        const plotSection  = document.getElementById('plot-section');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPct  = document.getElementById('progress-pct');
+
+        // Reset errors
+        deckErr.style.display  = 'none';
+        sampleErr.style.display = 'none';
+
+        const deckVal   = parseInt(deckInput.value, 10);
+        const sampleVal = parseInt(sampleInput.value, 10);
+        let valid = true;
+
+        if (!Number.isInteger(deckVal) || deckVal < 2 || deckVal > 500) {
+            deckErr.style.display = 'block';
+            valid = false;
+        }
+        if (!Number.isInteger(sampleVal) || sampleVal < 100 || sampleVal > 200000) {
+            sampleErr.style.display = 'block';
+            valid = false;
+        }
+        if (!valid) return;
+
+        // Reset progress bar and show loading
+        progressFill.style.width = '0%';
+        progressPct.textContent  = '0%';
+        btn.disabled              = true;
+        loading.style.display     = 'flex';
+        plotSection.style.display = 'none';
+
+        // Open SSE stream
+        const url = `/simulate?deck_size=${deckVal}&sample_size=${sampleVal}`;
+        const es  = new EventSource(url);
+
+        es.addEventListener('progress', e => {
+            const { pct } = JSON.parse(e.data);
+            progressFill.style.width = pct + '%';
+            progressPct.textContent  = pct + '%';
+        });
+
+        es.addEventListener('done', e => {
+            es.close();
+            const data = JSON.parse(e.data);
+            Plotly.react('plot', data.data, data.layout, { responsive: true });
+            revealResults();
+            // Reset UI
+            btn.disabled          = false;
+            loading.style.display = 'none';
+            // Smooth-scroll to results after a brief paint delay
+            setTimeout(() => {
+                const top = plotSection.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT - 12;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }, 60);
+        });
+
+        es.onerror = () => {
+            es.close();
+            alert('Simulation stream failed. Please try again.');
+            btn.disabled          = false;
+            loading.style.display = 'none';
+        };
+    }
+</script>
+</body>
+</html>
