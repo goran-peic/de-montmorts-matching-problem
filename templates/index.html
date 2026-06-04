@@ -20,6 +20,9 @@
             --text-dim:  #7a7a9a;
             --mono:      'IBM Plex Mono', monospace;
             --serif:     'Libre Baskerville', Georgia, serif;
+            /* CLT section accent colours */
+            --gold:      #f5c842;
+            --green:     #3dffa0;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +36,7 @@
             color: var(--text);
             font-family: var(--serif);
             min-height: 100vh;
-            padding: 100px 20px 80px; /* top clearance for sticky nav */
+            padding: 100px 20px 80px;
         }
 
         /* ── Sticky Nav Bar ── */
@@ -90,13 +93,12 @@
             opacity: 0.5;
             letter-spacing: 0.05em;
         }
-        /* Locked state for §05 before plot is ready */
         .nav-btn.locked {
             opacity: 0.3;
             cursor: not-allowed;
             pointer-events: none;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 820px) {
             .nav-btn { padding: 0 8px; font-size: 0.6rem; gap: 4px; }
             .nav-btn .nav-label { display: none; }
         }
@@ -154,6 +156,11 @@
             border-radius: 4px 4px 0 0;
         }
 
+        /* gold accent top bar for CLT sections */
+        .card.card-gold::before {
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
         .section-label {
             font-family: var(--mono);
             font-size: 0.65rem;
@@ -164,6 +171,7 @@
             opacity: 0.8;
             text-align: center;
         }
+        .section-label.gold { color: var(--gold); }
 
         .card h2 {
             font-family: var(--mono);
@@ -182,10 +190,8 @@
         }
         .card p + p { margin-top: 12px; }
 
-        /* ── Sections 3 & 4 merged: §04 floated right inside §03's card ── */
-        #sec-03 {
-            overflow: hidden; /* contain the float */
-        }
+        /* ── Sections 3 & 4 merged ── */
+        #sec-03 { overflow: hidden; }
         #sec-04 {
             float: right;
             width: calc(50% - 14px);
@@ -196,11 +202,7 @@
             padding: 24px 24px 20px;
         }
         @media (max-width: 640px) {
-            #sec-04 {
-                float: none;
-                width: 100%;
-                margin: 0 0 24px 0;
-            }
+            #sec-04 { float: none; width: 100%; margin: 0 0 24px 0; }
             .card { padding: 24px 20px; }
         }
 
@@ -215,6 +217,7 @@
             font-size: 1rem;
             color: #c8e8ff;
         }
+        .math-block.gold-border { border-left-color: var(--gold); color: #fff8d4; }
         .math-label {
             font-family: var(--mono);
             font-size: 0.7rem;
@@ -279,21 +282,11 @@
             transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
             box-shadow: 0 4px 24px rgba(224,48,48,0.25);
         }
-        .run-btn:hover {
-            background: var(--red-hover);
-            box-shadow: 0 4px 32px rgba(255,68,68,0.45);
-        }
+        .run-btn:hover { background: var(--red-hover); box-shadow: 0 4px 32px rgba(255,68,68,0.45); }
         .run-btn:active { transform: scale(0.98); }
-        .run-btn:disabled {
-            background: #5a2020;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        .run-btn:disabled { background: #5a2020; cursor: not-allowed; box-shadow: none; }
 
         /* ── Plot section ── */
-        #plot-section {
-            display: {% if plot_json %}block{% else %}none{% endif %};
-        }
         #plot { width: 100%; height: 500px; }
 
         /* ── Loading overlay ── */
@@ -364,6 +357,128 @@
             margin-top: 2px;
             display: none;
         }
+
+        /* ── CLT §06: info-grid ── */
+        .clt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 20px 0;
+        }
+        @media (max-width: 620px) { .clt-grid { grid-template-columns: 1fr; } }
+        .clt-tile {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(245,200,66,0.18);
+            border-radius: 4px;
+            padding: 16px 20px;
+        }
+        .clt-tile .tile-head {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--gold);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .clt-tile p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            text-align: justify;
+        }
+
+        /* ── §07 CLT Sampling controls ── */
+        .sample-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin: 24px 0;
+        }
+        @media (max-width: 600px) { .sample-controls { grid-template-columns: 1fr; } }
+        .sample-col {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sample-col .col-head {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .sample-col .col-head.s1 { color: #3dffa0; }
+        .sample-col .col-head.s2 { color: var(--gold); }
+        .sample-col .col-head.s3 { color: #ff7eb3; }
+        .deck-affixed-note {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.07em;
+            margin-bottom: 16px;
+        }
+        .deck-affixed-note strong { color: var(--cyan); }
+
+        /* ── §07 CLT progress bar (gold) ── */
+        #clt-loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 24px 20px;
+            background: var(--bg-card);
+            border: 1px solid rgba(245,200,66,0.3);
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+        }
+        #clt-loading .spinner {
+            border-color: rgba(245,200,66,0.2);
+            border-top-color: var(--gold);
+        }
+        #clt-loading .progress-bar { background: rgba(245,200,66,0.1); }
+        #clt-loading .progress-fill { background: linear-gradient(90deg, rgba(245,200,66,0.5), var(--gold)); }
+        #clt-loading .progress-pct { color: var(--gold); }
+
+        /* ── Observations callout boxes ── */
+        .obs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 24px;
+        }
+        @media (max-width: 680px) { .obs-grid { grid-template-columns: 1fr; } }
+        .obs-box {
+            border-radius: 4px;
+            padding: 18px 16px;
+            border: 1px solid;
+        }
+        .obs-box.green  { border-color: rgba(61,255,160,0.25); background: rgba(61,255,160,0.04); }
+        .obs-box.gold   { border-color: rgba(245,200,66,0.25); background: rgba(245,200,66,0.04); }
+        .obs-box.pink   { border-color: rgba(255,126,179,0.25); background: rgba(255,126,179,0.04); }
+        .obs-box .obs-head {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .obs-box.green .obs-head { color: #3dffa0; }
+        .obs-box.gold  .obs-head { color: var(--gold); }
+        .obs-box.pink  .obs-head { color: #ff7eb3; }
+        .obs-box p { font-size: 0.88rem; line-height: 1.7; text-align: justify; }
+
+        /* ── Divider rule ── */
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0 20px;
+        }
     </style>
 </head>
 <body>
@@ -385,12 +500,22 @@
     <a class="nav-btn locked" id="nav-results" href="#sec-05">
         <span class="nav-index">§05</span><span class="nav-label">Results</span>
     </a>
+    <a class="nav-btn locked" id="nav-clt" href="#sec-06">
+        <span class="nav-index">§06</span><span class="nav-label">The CLT</span>
+    </a>
+    <a class="nav-btn locked" id="nav-sampling" href="#sec-07">
+        <span class="nav-index">§07</span><span class="nav-label">CLT Sampling</span>
+    </a>
+    <a class="nav-btn locked" id="nav-clt-results" href="#sec-08">
+        <span class="nav-index">§08</span><span class="nav-label">CLT Results</span>
+    </a>
 </nav>
 
 <div class="page-wrapper">
 
     <!-- ── Page Title ── -->
-    <div class="page-title" id="sec-top">        <h1>De Montmort's Matching Problem</h1>
+    <div class="page-title" id="sec-top">
+        <h1>De Montmort's Matching Problem</h1>
         <p class="subtitle">Hwang &amp; Blitzstein · Introduction to Probability · Example 1.6.4</p>
         <div class="title-rule"></div>
     </div>
@@ -468,7 +593,7 @@
 
         <p>
             Remarkably, this limit is approached very quickly — already for \(n \geq 5\) the probability
-            stabilises to four decimal places. The result is surprising: no matter how large the deck,
+            stabilizes to four decimal places. The result is surprising: no matter how large the deck,
             there is always roughly a 63.2% chance that some card lands in its "correct" position.
         </p>
     </div>
@@ -476,7 +601,6 @@
     <!-- ── Sections 3 & 4: §04 floated right inside §03's card ── -->
     <div class="card" id="sec-03">
 
-        <!-- §04 floated right so §03 text wraps around it -->
         <div id="sec-04">
             <p class="section-label">§ 04 — Run the Simulation</p>
             <h2>Configure Parameters</h2>
@@ -538,41 +662,271 @@
         </div>
     </div>
 
-    <!-- ── Plot ── -->
+    <!-- ── Plot (§05) ── -->
     <div id="plot-section" class="card" style="padding: 24px 16px; display: none; flex-direction: column; align-items: center;">
         <p class="section-label" style="width: 100%; text-align: center;" id="sec-05">§ 05 — Results</p>
         <div id="plot" style="width: 100%; max-width: 860px;"></div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         §06 — The Central Limit Theorem
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card card-gold" id="sec-06" style="display:none;">
+        <p class="section-label gold">§ 06 — The Central Limit Theorem</p>
+        <h2>Why Sample Means Become Normal</h2>
+
+        <p>
+            The simulation above showed something remarkable: regardless of deck size, the
+            probability of a match stabilizes near \(1 - e^{-1} \approx 0.6321\). But this
+            raises a natural statistical question — if we did not know this number and had to
+            <em>estimate it</em> from data, what would repeated estimates look like?
+            The answer is provided by one of the most profound theorems in all of mathematics:
+            the <strong style="color:var(--gold)">Central Limit Theorem</strong>.
+        </p>
+
+        <div class="math-block gold-border">
+            <div class="math-label">Central Limit Theorem (informal statement)</div>
+            \[
+              \bar{X}_n \;=\; \frac{1}{n}\sum_{i=1}^{n} X_i
+              \quad \xrightarrow{\;d\;} \quad
+              \mathcal{N}\!\left(\mu,\; \frac{\sigma^2}{n}\right)
+              \quad \text{as } n \to \infty
+            \]
+        </div>
+
+        <p>
+            Formally, let \(X_1, X_2, \ldots, X_n\) be independent and identically distributed
+            random variables with mean \(\mu\) and finite variance \(\sigma^2\). The CLT states
+            that the distribution of the standardized sample mean
+        </p>
+
+        <div class="math-block gold-border">
+            <div class="math-label">Standardised Form</div>
+            \[
+              Z_n \;=\; \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}}
+              \;\xrightarrow{\;d\;}\; \mathcal{N}(0,\,1)
+            \]
+        </div>
+
+        <p>
+            converges in distribution to a standard normal, <em>regardless of the shape of the
+            underlying distribution</em>. The Bernoulli trials in our matching game —
+            each a 0 (no match) or 1 (at least one match) — are precisely the kind of i.i.d.
+            sequence to which the CLT applies. The population mean is \(\mu = 1 - e^{-1}\) and the
+            population variance is \(\sigma^2 = \mu(1-\mu) \approx 0.232\).
+        </p>
+
+        <div class="clt-grid">
+            <div class="clt-tile">
+                <p class="tile-head">📐 What CLT tells us about spread</p>
+                <p>
+                    The standard error of the mean is \(\sigma/\sqrt{n}\). Doubling sample size
+                    cuts the standard deviation of the sampling distribution by \(\sqrt{2} \approx 1.41\),
+                    <em>not</em> by 2. This square-root relationship is the famous
+                    <strong style="color:var(--gold)">Inverse Square Law</strong> in sampling.
+                </p>
+            </div>
+            <div class="clt-tile">
+                <p class="tile-head">🎯 What CLT tells us about shape</p>
+                <p>
+                    No matter how skewed or irregular the parent distribution, the histogram of
+                    many sample means will be bell-shaped. This is why the normal distribution
+                    appears so pervasively in empirical science — it is the <em>limiting attractor</em>
+                    of averaging processes.
+                </p>
+            </div>
+            <div class="clt-tile">
+                <p class="tile-head">🔬 Confidence intervals</p>
+                <p>
+                    CLT is the engine behind every confidence interval. A 95% CI for a mean is
+                    \(\bar{X} \pm 1.96\,\sigma/\sqrt{n}\). Narrowing the interval by half requires
+                    <em>four times</em> as many observations — a direct consequence of the
+                    \(\sqrt{n}\) denominator.
+                </p>
+            </div>
+            <div class="clt-tile">
+                <p class="tile-head">⚡ Power &amp; sample size</p>
+                <p>
+                    In hypothesis testing, statistical power — the probability of detecting a true
+                    effect — depends critically on \(n\). Larger samples compress the sampling
+                    distribution, making it easier to distinguish signal from noise. The CLT
+                    provides the theoretical scaffolding for all such power calculations.
+                </p>
+            </div>
+        </div>
+
+        <p>
+            In the sections that follow, we treat \(1 - e^{-1}\) as an unknown population parameter
+            and watch the CLT in action: three different sample sizes will produce three different
+            sampling distributions, each centred near the true value but with starkly different widths.
+        </p>
+    </div><!-- end §06 -->
+
+    <!-- ══════════════════════════════════════════════════════════════
+         §07 — CLT Sampling
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card card-gold" id="sec-07" style="display:none;">
+        <p class="section-label gold">§ 07 — CLT Sampling</p>
+        <h2>Estimating a Population Parameter</h2>
+
+        <p>
+            Imagine that \(1 - e^{-1}\) is an unknown probability we want to estimate — as any
+            real-world proportion (drug efficacy, election support, click-through rate) would be.
+            Each <em>estimate</em> we form is an average over a sample of trials; if we repeated
+            this estimation process many times, what would the distribution of our estimates look like?
+        </p>
+        <p>
+            That is exactly what this exercise demonstrates. We will run the matching game simulation
+            at three different sample sizes, repeating <strong style="color:var(--gold)">200 times</strong>
+            each, to empirically construct three sampling distributions and compare their widths.
+        </p>
+
+        <p class="deck-affixed-note" style="margin-top: 16px;">
+            Note: Because \(1 - e^{-1}\) is the same for all \(n \geq 5\),
+            <strong>deck size is fixed at 10</strong> for all three experiments below.
+            Only the number of games per estimate varies.
+        </p>
+
+        <div class="sample-controls">
+            <div class="sample-col">
+                <p class="col-head s1">Small Sample</p>
+                <div class="input-row">
+                    <label for="clt_n1" style="color:#3dffa0;">Games per estimate</label>
+                    <input type="number" id="clt_n1" value="100" min="10" max="10000" step="10"
+                           style="color:#3dffa0; border-color: rgba(61,255,160,0.3);">
+                </div>
+                <p style="font-family:var(--mono); font-size:0.68rem; color:var(--text-dim); letter-spacing:0.07em;">
+                    × 200 iterations = 200 estimates
+                </p>
+            </div>
+            <div class="sample-col">
+                <p class="col-head s2">Medium Sample</p>
+                <div class="input-row">
+                    <label for="clt_n2" style="color:var(--gold);">Games per estimate</label>
+                    <input type="number" id="clt_n2" value="1000" min="10" max="50000" step="100"
+                           style="color:var(--gold); border-color: rgba(245,200,66,0.3);">
+                </div>
+                <p style="font-family:var(--mono); font-size:0.68rem; color:var(--text-dim); letter-spacing:0.07em;">
+                    × 200 iterations = 200 estimates
+                </p>
+            </div>
+            <div class="sample-col">
+                <p class="col-head s3">Large Sample</p>
+                <div class="input-row">
+                    <label for="clt_n3" style="color:#ff7eb3;">Games per estimate</label>
+                    <input type="number" id="clt_n3" value="5000" min="100" max="200000" step="500"
+                           style="color:#ff7eb3; border-color: rgba(255,126,179,0.3);">
+                </div>
+                <p style="font-family:var(--mono); font-size:0.68rem; color:var(--text-dim); letter-spacing:0.07em;">
+                    × 200 iterations = 200 estimates
+                </p>
+            </div>
+        </div>
+
+        <button class="run-btn" id="clt-run-btn" onclick="runCLTSampling()">
+            Sample
+        </button>
+    </div><!-- end §07 -->
+
+    <!-- ── CLT loading indicator ── -->
+    <div id="clt-loading">
+        <div class="loading-row">
+            <div class="spinner"></div>
+            <span id="clt-loading-label">BUILDING SAMPLING DISTRIBUTIONS…</span>
+        </div>
+        <div class="progress-wrap">
+            <div class="progress-bar">
+                <div class="progress-fill" id="clt-progress-fill"></div>
+            </div>
+            <span class="progress-pct" id="clt-progress-pct">0%</span>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         §08 — CLT Results
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card card-gold" id="sec-08" style="display:none;">
+        <p class="section-label gold">§ 08 — CLT Results</p>
+        <h2>Sampling Distributions &amp; the Inverse Square Law</h2>
+
+        <div style="display:flex; justify-content:center;">
+            <div id="clt-plot" style="width:100%; max-width:860px; height:520px;"></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <p style="margin-bottom:18px; font-size:0.97rem; line-height:1.8;">
+            The three curves above are each a <strong style="color:var(--gold)">kernel density estimate</strong>
+            (approximated here by a fitted Gaussian) of 200 independent sample means.
+            Their collective behaviour illustrates three essential principles:
+        </p>
+
+        <div class="obs-grid">
+            <div class="obs-box green">
+                <p class="obs-head">I. The Central Limit Theorem</p>
+                <p>
+                    All three distributions are centred near \(1 - e^{-1} \approx 0.6321\).
+                    Despite the underlying distribution being Bernoulli, repeated averaging produces
+                    bell-shaped curves — exactly as the CLT predicts. The true parameter sits at the
+                    heart of each bell, confirming that sample means are <em>unbiased estimators</em>
+                    of the population mean.
+                </p>
+            </div>
+            <div class="obs-box gold">
+                <p class="obs-head">II. The Inverse Square Law</p>
+                <p>
+                    The standard error scales as \(1/\sqrt{n}\). Going from 100 to 1,000 games
+                    (10× more data) shrinks the spread by a factor of \(\sqrt{10} \approx 3.16\).
+                    From 100 to 5,000 (50× more data), the spread shrinks by \(\sqrt{50} \approx 7.07\).
+                    This diminishing return means that buying precision becomes increasingly expensive
+                    — a cornerstone insight for any empirical study.
+                </p>
+            </div>
+            <div class="obs-box pink">
+                <p class="obs-head">III. Power &amp; Precision</p>
+                <p>
+                    A narrow sampling distribution means we can reliably distinguish our estimate
+                    from alternative hypotheses. The tall, thin curve for the largest sample
+                    corresponds to a high-power test. In practice, this informs every sample-size
+                    calculation in medicine, A/B testing, polling, and experimental physics —
+                    the CLT guarantees <em>normality</em>; the Inverse Square Law dictates
+                    <em>cost</em>.
+                </p>
+            </div>
+        </div>
+    </div><!-- end §08 -->
+
 </div><!-- end .page-wrapper -->
 
 <script>
-    // ── Nav: scroll-spy ──────────────────────────────────────────────
+    // ── Nav: scroll-spy ─────────────────────────────────────────────
     const NAV_HEIGHT = 52;
     const navLinks   = document.querySelectorAll('.nav-btn');
-    // sections[i] → which nav button index should be active when that section is in view
-    const sections = [
-        { el: document.getElementById('sec-01'),      navIdx: 0 },
-        { el: document.getElementById('sec-02'),      navIdx: 1 },
-        { el: document.getElementById('sec-03'),      navIdx: 2 }, // merged card; §04 nav btn also lives here
-        { el: document.getElementById('plot-section'), navIdx: 4 },
-    ];
+
+    // Sections list — rebuilt dynamically when new sections become visible
+    function getVisibleSections() {
+        return [
+            { el: document.getElementById('sec-01'),       navIdx: 0 },
+            { el: document.getElementById('sec-02'),       navIdx: 1 },
+            { el: document.getElementById('sec-03'),       navIdx: 2 },
+            { el: document.getElementById('plot-section'), navIdx: 4 },
+            { el: document.getElementById('sec-06'),       navIdx: 5 },
+            { el: document.getElementById('sec-07'),       navIdx: 6 },
+            { el: document.getElementById('sec-08'),       navIdx: 7 },
+        ].filter(s => s.el && s.el.style.display !== 'none');
+    }
 
     function updateActiveNav() {
         const scrollY = window.scrollY + NAV_HEIGHT + 16;
         let currentNavIdx = 0;
-        sections.forEach(({ el, navIdx }) => {
-            if (el && el.style.display !== 'none' && el.offsetTop <= scrollY) {
-                currentNavIdx = navIdx;
-            }
+        getVisibleSections().forEach(({ el, navIdx }) => {
+            if (el.offsetTop <= scrollY) currentNavIdx = navIdx;
         });
-        navLinks.forEach((btn, i) => {
-            btn.classList.toggle('active', i === currentNavIdx);
-        });
+        navLinks.forEach((btn, i) => btn.classList.toggle('active', i === currentNavIdx));
     }
     window.addEventListener('scroll', updateActiveNav, { passive: true });
 
-    // Offset anchor scrolling to clear the fixed nav
+    // Offset anchor scrolling to clear fixed nav
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', e => {
             const target = document.querySelector(link.getAttribute('href'));
@@ -583,15 +937,40 @@
         });
     });
 
-    // ── Unlock §05 nav button and reveal plot section ────────────────
+    // ── Unlock nav + reveal section helpers ─────────────────────────
     function revealResults() {
-        const plotSection  = document.getElementById('plot-section');
-        const navResults   = document.getElementById('nav-results');
+        const plotSection = document.getElementById('plot-section');
+        const navResults  = document.getElementById('nav-results');
         plotSection.style.display = 'flex';
         navResults.classList.remove('locked');
+
+        // Also reveal §06 and §07 (they follow results automatically)
+        const sec06 = document.getElementById('sec-06');
+        const sec07 = document.getElementById('sec-07');
+        const navCLT      = document.getElementById('nav-clt');
+        const navSampling = document.getElementById('nav-sampling');
+        sec06.style.display = 'block';
+        sec07.style.display = 'block';
+        navCLT.classList.remove('locked');
+        navSampling.classList.remove('locked');
+
+        // Re-run MathJax on newly visible content
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise([sec06, sec07]);
+        }
     }
 
-    // ── Simulation form ──────────────────────────────────────────────
+    function revealCLTResults() {
+        const sec08          = document.getElementById('sec-08');
+        const navCLTResults  = document.getElementById('nav-clt-results');
+        sec08.style.display  = 'block';
+        navCLTResults.classList.remove('locked');
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise([sec08]);
+        }
+    }
+
+    // ── §04 — Monte Carlo Simulation (existing logic) ────────────────
     function runSimulation() {
         const deckInput    = document.getElementById('deck_size');
         const sampleInput  = document.getElementById('sample_size');
@@ -603,8 +982,7 @@
         const progressFill = document.getElementById('progress-fill');
         const progressPct  = document.getElementById('progress-pct');
 
-        // Reset errors
-        deckErr.style.display  = 'none';
+        deckErr.style.display   = 'none';
         sampleErr.style.display = 'none';
 
         const deckVal   = parseInt(deckInput.value, 10);
@@ -612,23 +990,19 @@
         let valid = true;
 
         if (!Number.isInteger(deckVal) || deckVal < 2 || deckVal > 500) {
-            deckErr.style.display = 'block';
-            valid = false;
+            deckErr.style.display = 'block'; valid = false;
         }
         if (!Number.isInteger(sampleVal) || sampleVal < 100 || sampleVal > 200000) {
-            sampleErr.style.display = 'block';
-            valid = false;
+            sampleErr.style.display = 'block'; valid = false;
         }
         if (!valid) return;
 
-        // Reset progress bar and show loading
-        progressFill.style.width = '0%';
-        progressPct.textContent  = '0%';
-        btn.disabled              = true;
-        loading.style.display     = 'flex';
-        plotSection.style.display = 'none';
+        progressFill.style.width  = '0%';
+        progressPct.textContent   = '0%';
+        btn.disabled               = true;
+        loading.style.display      = 'flex';
+        plotSection.style.display  = 'none';
 
-        // Open SSE stream
         const url = `/simulate?deck_size=${deckVal}&sample_size=${sampleVal}`;
         const es  = new EventSource(url);
 
@@ -643,10 +1017,8 @@
             const data = JSON.parse(e.data);
             Plotly.react('plot', data.data, data.layout, { responsive: true });
             revealResults();
-            // Reset UI
             btn.disabled          = false;
             loading.style.display = 'none';
-            // Smooth-scroll to results after a brief paint delay
             setTimeout(() => {
                 const top = plotSection.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT - 12;
                 window.scrollTo({ top, behavior: 'smooth' });
@@ -659,6 +1031,215 @@
             btn.disabled          = false;
             loading.style.display = 'none';
         };
+    }
+
+    // ── §07 — CLT Sampling (pure browser-side simulation) ───────────
+    // We do not need the server for this; the matching game is simple
+    // enough to run in JS directly for deck_size=10.
+
+    function matchingGameWin(deckSize) {
+        // Generate two random permutations of [0..deckSize-1] and check for any match
+        const a = Array.from({length: deckSize}, (_, i) => i);
+        const b = Array.from({length: deckSize}, (_, i) => i);
+        // Fisher-Yates shuffle both
+        for (let i = deckSize - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+            const k = Math.floor(Math.random() * (i + 1));
+            [b[i], b[k]] = [b[k], b[i]];
+        }
+        return a.some((v, i) => v === b[i]) ? 1 : 0;
+    }
+
+    function runMatchingBatch(gamesPerEstimate, deckSize) {
+        let wins = 0;
+        for (let i = 0; i < gamesPerEstimate; i++) wins += matchingGameWin(deckSize);
+        return wins / gamesPerEstimate;
+    }
+
+    // Normal PDF for curve fitting
+    function normalPDF(x, mu, sigma) {
+        const z = (x - mu) / sigma;
+        return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+    }
+
+    function mean(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length; }
+    function std(arr) {
+        const m = mean(arr);
+        return Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / (arr.length - 1));
+    }
+
+    function linspace(lo, hi, n) {
+        const step = (hi - lo) / (n - 1);
+        return Array.from({length: n}, (_, i) => lo + i * step);
+    }
+
+    async function runCLTSampling() {
+        const n1 = parseInt(document.getElementById('clt_n1').value, 10);
+        const n2 = parseInt(document.getElementById('clt_n2').value, 10);
+        const n3 = parseInt(document.getElementById('clt_n3').value, 10);
+
+        if ([n1, n2, n3].some(v => isNaN(v) || v < 10)) {
+            alert('Please enter valid simulation sizes (minimum 10 each).');
+            return;
+        }
+
+        const ITERS    = 200;
+        const DECK     = 10;
+        const btn      = document.getElementById('clt-run-btn');
+        const loadEl   = document.getElementById('clt-loading');
+        const label    = document.getElementById('clt-loading-label');
+        const fillEl   = document.getElementById('clt-progress-fill');
+        const pctEl    = document.getElementById('clt-progress-pct');
+
+        btn.disabled           = true;
+        loadEl.style.display   = 'flex';
+        fillEl.style.width     = '0%';
+        pctEl.textContent      = '0%';
+
+        const samples = [[], [], []];
+        const configs = [n1, n2, n3];
+        const totalIter = ITERS * 3;
+        let done = 0;
+
+        for (let c = 0; c < 3; c++) {
+            label.textContent = `SAMPLING GROUP ${c + 1}/3 (n=${configs[c].toLocaleString()})…`;
+            for (let it = 0; it < ITERS; it++) {
+                samples[c].push(runMatchingBatch(configs[c], DECK));
+                done++;
+                if (it % 10 === 0) {
+                    // yield to browser to keep UI responsive
+                    await new Promise(r => setTimeout(r, 0));
+                    const pct = Math.round(done / totalIter * 100);
+                    fillEl.style.width  = pct + '%';
+                    pctEl.textContent   = pct + '%';
+                }
+            }
+        }
+
+        fillEl.style.width = '100%';
+        pctEl.textContent  = '100%';
+
+        // Build CLT plot
+        buildCLTPlot(samples, configs);
+
+        loadEl.style.display = 'none';
+        btn.disabled          = false;
+        revealCLTResults();
+
+        setTimeout(() => {
+            const sec08 = document.getElementById('sec-08');
+            const top   = sec08.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT - 12;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }, 60);
+    }
+
+    function buildCLTPlot(samples, configs) {
+        // Colours matching sample col headers
+        const COLORS = ['#3dffa0', '#f5c842', '#ff7eb3'];
+        const TRUE_PARAM = 1 - 1 / Math.E;   // ≈ 0.6321
+
+        // Determine global x range
+        const allVals = samples.flat();
+        const globalMin = Math.min(...allVals);
+        const globalMax = Math.max(...allVals);
+        const pad = (globalMax - globalMin) * 0.25;
+        const xMin = Math.max(0, globalMin - pad);
+        const xMax = Math.min(1, globalMax + pad);
+        const xs = linspace(xMin, xMax, 400);
+
+        const traces = [];
+
+        // Fitted normal curves — line width inversely proportional to std
+        // We scale so the thinnest curve (largest n) gets width 2, widest gets ~6
+        const stds = samples.map(s => std(s));
+        const maxStd = Math.max(...stds);
+        // lineWidth = 2 + 4 * (sd / maxStd)  →  widest distribution gets ~6, narrowest ~2
+        const lineWidths = stds.map(s => 2 + 4 * (s / maxStd));
+
+        for (let c = 0; c < 3; c++) {
+            const mu  = mean(samples[c]);
+            const sd  = stds[c];
+            const ys  = xs.map(x => normalPDF(x, mu, sd));
+
+            traces.push({
+                x: xs,
+                y: ys,
+                mode: 'lines',
+                name: `n = ${configs[c].toLocaleString()} (σ̂ = ${sd.toFixed(4)})`,
+                line: { color: COLORS[c], width: lineWidths[c] },
+                fill: 'tozeroy',
+                fillcolor: ['rgba(61,255,160,0.06)','rgba(245,200,66,0.06)','rgba(255,126,179,0.06)'][c],
+                hovertemplate: `n=${configs[c].toLocaleString()}<br>p̂ = %{x:.4f}<br>density = %{y:.3f}<extra></extra>`,
+            });
+        }
+
+        // Vertical dashed lines for sample means
+        for (let c = 0; c < 3; c++) {
+            const mu = mean(samples[c]);
+            traces.push({
+                x: [mu, mu],
+                y: [0, normalPDF(mu, mu, stds[c]) * 1.08],
+                mode: 'lines',
+                name: `mean (n=${configs[c].toLocaleString()}) = ${mu.toFixed(4)}`,
+                line: { color: COLORS[c], width: 1.5, dash: 'dash' },
+                hovertemplate: `Mean (n=${configs[c].toLocaleString()}) = ${mu.toFixed(4)}<extra></extra>`,
+                showlegend: true,
+            });
+        }
+
+        // True parameter vertical line
+        const maxDensity = Math.max(...samples.map((s, c) => normalPDF(mean(s), mean(s), stds[c])));
+        traces.push({
+            x: [TRUE_PARAM, TRUE_PARAM],
+            y: [0, maxDensity * 1.15],
+            mode: 'lines',
+            name: `True μ = 1−1/e ≈ ${TRUE_PARAM.toFixed(4)}`,
+            line: { color: 'rgba(255,255,255,0.55)', width: 2, dash: 'dot' },
+            hovertemplate: `True μ = ${TRUE_PARAM.toFixed(4)}<extra></extra>`,
+        });
+
+        const layout = {
+            title: {
+                text: "Sampling Distributions of p̂ at Three Sample Sizes",
+                font: { color: '#ffffff', size: 16, family: "'IBM Plex Mono', monospace" },
+                x: 0.5,
+            },
+            xaxis: {
+                title: { text: 'Estimated Probability (p̂)', font: { color: '#7a7a9a' } },
+                color: '#7a7a9a',
+                gridcolor: 'rgba(255,255,255,0.04)',
+                zerolinecolor: 'rgba(255,255,255,0.08)',
+            },
+            yaxis: {
+                title: { text: 'Density', font: { color: '#7a7a9a' } },
+                color: '#7a7a9a',
+                gridcolor: 'rgba(255,255,255,0.04)',
+                zerolinecolor: 'rgba(255,255,255,0.08)',
+            },
+            template: 'plotly_dark',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor:  'rgba(0,0,0,0)',
+            legend: {
+                font: { family: "'IBM Plex Mono', monospace", size: 11, color: '#d4d4e8' },
+                bgcolor: 'rgba(0,0,0,0.35)',
+                bordercolor: 'rgba(255,255,255,0.1)',
+                borderwidth: 1,
+            },
+            margin: { l: 50, r: 30, t: 60, b: 50 },
+            hovermode: 'x unified',
+            annotations: [{
+                xref: 'x', yref: 'paper',
+                x: TRUE_PARAM,
+                y: 1.04,
+                text: `1−1/e`,
+                showarrow: false,
+                font: { color: 'rgba(255,255,255,0.6)', size: 11, family: "'IBM Plex Mono', monospace" },
+                xanchor: 'center',
+            }],
+        };
+
+        Plotly.react('clt-plot', traces, layout, { responsive: true });
     }
 </script>
 </body>
